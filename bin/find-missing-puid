@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+import os
+
+from trax.schema import Track
+
+if __name__ == '__main__':
+
+  dirs = set()
+
+  for track in Track.query.filter(Track.puid==None):
+    dirs.add(os.path.dirname(track.filename))
+
+  for dir in sorted(dirs):
+    print "Missing PUID: %s" % dir

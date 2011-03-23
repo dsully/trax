@@ -1,0 +1,55 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+import flac.metadata
+
+top  = "/bits/music/flac"
+
+chain = flac.metadata.Chain()
+it    = flac.metadata.Iterator()
+SIZE  = 65536
+
+def add_padding(filename):
+
+  chain.read(filename)
+  it.init(chain)
+
+  current_padding = 0
+
+  # Find the current padding block, and also get to the end of the blocks.
+  while True:
+    block = it.get_block()
+
+    if block.type == flac.metadata.PADDING:
+      current_padding = block.length
+
+    if not it.next():
+      break
+
+  if current_padding < SIZE:
+
+    padding = flac.metadata.Metadata(flac.metadata.PADDING)
+    padding.length = SIZE - current_padding
+
+    print "Adding padding(%d) to: %s" % (padding.length, filename)
+
+    if not it.insert_block_after(padding):
+      print "%s: ERROR: adding new PADDING block to metadata\n" % filename
+      return
+
+    use_padding = False
+    preserve_modtime = True
+    chain.sort_padding()
+
+    if not chain.write(use_padding, preserve_modtime):
+      print "%s: ERROR: writing FLAC file" % filename
+
+# Main
+for root, dirs, files in os.walk(top, topdown=True):
+
+  for name in files:
+
+    if name.endswith('.flac'):
+      add_padding(os.path.join(root, name))

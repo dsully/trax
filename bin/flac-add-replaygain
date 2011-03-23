@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import os
+import re
+import shutil
+import sys
+
+import argparse
+import mutagen
+
+from trax.schema import Track
+
+def main():
+  sources = set()
+
+  for track in Track.query.filter_by(filetype='flac', replaygain_album_gain=None).all():
+
+    # Add the directory, so we apply replay gain an album at a time.
+    sources.add(os.path.dirname(track.filename))
+
+  print "Working on %d directories.." % len(sources)
+
+  for source in sorted(sources):
+
+    print "Applying gain to: %s" % source
+
+    os.system('metaflac --preserve-modtime --add-replay-gain "%s"/*.flac' % source)
+
+if __name__ == "__main__":
+  main()

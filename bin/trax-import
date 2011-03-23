@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+"""
+  Import an Audio File (FLAC) into the metadata store.
+"""
+
+import os
+import time
+
+import argparse
+import progressbar
+
+from trax.importer import import_track
+from trax.schema import Metadata, Track, session
+from trax.utils import log
+
+import trax.format
+
+def main():
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--path', required=True, help='Path to your music library.')
+  parser.add_argument('--progress', action='store_true', default=False, help='Use the progress bar.')
+  parser.add_argument('--force', action='store_true', default=False, help='Force import of files.')
+
+  args = parser.parse_args()
+
+  try:
+    last_updated = Metadata.query.filter(Metadata.name=='last_updated').one()
+  except:
+    last_updated = Metadata(name='last_updated', value=0)
+
+  filelist = []
+
+  log.info("Building file list..")
+
+  for root, _, files in os.walk(args.path, topdown=True):
+    for name in files:
+      filelist.append(os.path.join(root, name).decode('UTF-8'))
+
+  log.info("Processing files..")
+
+  if args.progress:
+    widgets  = [' ', progressbar.Percentage(), ' ', progressbar.Bar(marker='*',left='[',right=']'), ' ', progressbar.ETA(), ' ']
+    progress = progressbar.ProgressBar(widgets=widgets, maxval=len(filelist))
+    progress.start()
+
+  for i, filename in enumerate(filelist):
+
+    track = import_track(filename, last_updated, force=args.force)
+
+    if track:
+      session.add(track)
+
+    if args.progress:
+      progress.update(i)
+
+    # Periodically commit
+    if i % 1000 == 0:
+      log.debug("Periodic commit at %d files.", i)
+      session.commit()
+
+  if args.progress:
+    progress.finish()
+
+  log.info("Setting last_updated value & commiting.")
+
+  last_updated.value = int(time.time())
+  session.add(last_updated)
+
+  session.commit()
+
+if __name__ == "__main__":
+  main()

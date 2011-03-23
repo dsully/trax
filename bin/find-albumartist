@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import argparse
+
+import trax.schema
+
+from trax.schema import Track
+
+if __name__ == '__main__':
+
+  #trax.schema.engine.echo = True
+
+  for track in Track.query.filter(Track.albumartist != None):
+
+    print "%s Artist: %s AlbumArtist: %s" % (track.filename, track.artist, track.albumartist)
+
