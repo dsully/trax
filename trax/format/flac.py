@@ -10,11 +10,8 @@ log = logging.getLogger(__name__)
 class FLAC(Base):
   """ FLAC Audio File. """
 
-  def apply_replaygain(self, source):
-
-    log.info("Applying gain to: %s", source)
-
-    os.system('metaflac --preserve-modtime --add-replay-gain "%s"/*.flac' % source)
+  # Not needed for FLAC
+  txxx = {}
 
   def extract_artwork(self):
     """ Extract artwork metadata into a file. """

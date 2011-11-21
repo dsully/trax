@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
+""" Add additional padding to FLAC metadata blocks. Useful for operating on a network share. """
+
+import argparse
 import os
-import sys
 
 import flac.metadata
-
-top  = "/bits/music/flac"
 
 chain = flac.metadata.Chain()
 it    = flac.metadata.Iterator()
@@ -46,10 +46,17 @@ def add_padding(filename):
     if not chain.write(use_padding, preserve_modtime):
       print "%s: ERROR: writing FLAC file" % filename
 
-# Main
-for root, dirs, files in os.walk(top, topdown=True):
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--path', required=True, help='Path to your music library.')
 
-  for name in files:
+  args = parser.parse_args()
 
-    if name.endswith('.flac'):
-      add_padding(os.path.join(root, name))
+  for root, _, filenames in os.walk(args.path, topdown=True):
+    for filename in filenames:
+
+      if filename.endswith('.flac'):
+        add_padding(os.path.join(root, filename))
+
+if __name__ == '__main__':
+  main()

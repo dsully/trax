@@ -6,7 +6,7 @@ import setuptools
 setuptools.bootstrap_install_from = None
 
 setuptools.setup(
-  name = '',
+  name = 'trax',
   version = '0.1',
   license = 'BSD',
   description = open('README.txt').read(),
@@ -15,24 +15,19 @@ setuptools.setup(
   url = 'https://github.com/dsully/trax',
   platforms = 'any',
 
-  packages = 'trax',
+  packages = ['trax'],
 
   scripts = [
-    'find-albumartist',
-    'find-empty-genre',
-    'find-missing-puid',
-    'fix-various-artists-compilations',
-    'flac-add-padding',
-    'flac-add-replaygain',
-    'trax-import',
-    'trax-transcode',
-  ],
-
-  install_requires = [
-    'mutagen',
-    'sqlalchemy',
+    'bin/find-albumartist',
+    'bin/find-empty-genre',
+    'bin/find-missing-puid',
+    'bin/fix-various-artists-compilations',
+    'bin/flac-add-padding',
+    'bin/flac-add-replaygain',
+    'bin/trax-import',
+    'bin/trax-transcode',
   ],
 
   zip_safe = False,
-  #verbose = False,
+  verbose = False,
 )

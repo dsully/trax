@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, LargeBinary, Float, SmallInteger, Unicode, UnicodeText, create_engine
+from sqlalchemy import Column, Integer, String, Text, Boolean, Float, SmallInteger, Unicode, UnicodeText, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, ColumnProperty
 from sqlalchemy.orm.mapper import class_mapper
 from sqlalchemy.ext.declarative import declarative_base
@@ -17,7 +17,7 @@ class Track(Base):
   __tablename__              = 'tracks'
 
   id                         = Column(Integer, primary_key=True)
-  filename                   = Column(Unicode(512), index=True)
+  filename                   = Column(Unicode(256), index=True)
   mtime                      = Column(Integer, index=True)
   filetype                   = Column(String(4), index=True)
   checksum                   = Column(String(128), index=True)
@@ -74,7 +74,7 @@ class Track(Base):
 
   discnumber                 = Column(SmallInteger)
   disctotal                  = Column(SmallInteger)
-  cover_file                 = Column(Unicode(512), index=True)
+  cover_file                 = Column(Unicode(256), index=True)
 
   def attribute_names(self):
     """ Return a list of the column properties for this object. """

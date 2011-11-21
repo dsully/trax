@@ -1,0 +1,5 @@
+argparse
+mutagen
+MySQL-Python
+progressbar
+sqlalchemy

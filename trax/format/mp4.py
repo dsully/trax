@@ -2,7 +2,7 @@ import logging
 import os
 
 import mutagen.mp4
-from mutagen.mp4 import MP4Cover, MP4StreamInfoError
+from mutagen.mp4 import MP4Cover
 
 from trax.format.base import Base
 from trax.soundcheck import replay_gain_to_soundcheck
@@ -12,27 +12,22 @@ log = logging.getLogger(__name__)
 class MP4(Base):
 
   attributes = {
-    "title":           "\xa9nam",
-    "album":           "\xa9alb",
-    "artist":          "\xa9ART",
-    "comment":         "\xa9cmt",
-    "date":            "\xa9day",
-    "genre":           "\xa9gen",
-    "grouping":        "\xa9grp",
-    "albumartist":     "aART",
-    "composer":        "\xa9wrt",
-    "lyrics":          "\xa9lyr",
-    "albumsort":       "soal",
-    "artistsort":      "soar",
-    "albumartistsort": "soaa",
-    "composersort":    "soco",
-    "bpm":             "tmpo",
+    "\xa9nam": "title",
+    "\xa9alb": "album",
+    "\xa9ART": "artist",
+    "\xa9cmt": "comment",
+    "\xa9day": "date",
+    "\xa9gen": "genre",
+    "\xa9grp": "grouping",
+    "aART"   : "albumartist",
+    "\xa9wrt": "composer",
+    "\xa9lyr": "lyrics",
+    "soal"   : "albumsort",
+    "soar"   : "artistsort",
+    "soaa"   : "albumartistsort",
+    "soco"   : "composersort",
+    "tmpo"   : "bpm",
   }
-
-  # MP4 needs these as TXXX.
-  #txxx['original_album']  = 'ORIGINAL ALBUM'
-  #txxx['original_artist'] = 'ORIGINAL ARTIST'
-  #txxx['original_year']   = 'ORIGINAL YEAR'
 
   def is_up_to_date(self):
     try:
@@ -73,9 +68,8 @@ class MP4(Base):
   def write_metadata(self, filename, force=False):
 
     # MP4 needs these as TXXX.
-    self.txxx['original_album']  = 'ORIGINAL ALBUM'
-    self.txxx['original_artist'] = 'ORIGINAL ARTIST'
-    self.txxx['original_year']   = 'ORIGINAL YEAR'
+    for value in ('original album', 'original_artist', 'original_year'):
+      self.txxx[value.upper().replace('_', ' ')] = value
 
     track = self.track
 
@@ -95,15 +89,15 @@ class MP4(Base):
     self.tags.clear()
 
     # Basics first.
-    for prop, tag in self.attributes.iteritems():
+    for tag, attribute in self.attributes.iteritems():
 
-      if hasattr(track, prop):
-        value = getattr(track, prop)
+      if hasattr(track, attribute):
+        value = getattr(track, attribute, None)
 
-        log.debug("Trying: prop: %s (%s)", prop, value)
+        log.debug("Trying: attribute: %s (%s)", attribute, value)
 
         if value:
-          self.tags[tag] = getattr(track, prop)
+          self.tags[tag] = value
 
     # Hack alert.. not sure how better to "detect" this.
     if track.genre:
@@ -148,13 +142,16 @@ class MP4(Base):
           self.tags["covr"] = [ MP4Cover(fh.read(), MP4Cover.FORMAT_JPEG) ]
 
     # Always add the check & time stamp for next time.
-    self.tags['----:com.sully.flac2mp4:checksum']  = track.checksum
+    if track.checksum:
+      self.tags['----:com.sully.flac2mp4:checksum'] = track.checksum
+
     self.tags['----:com.sully.flac2mp4:flacmtime'] = str(track.mtime)
 
     # Convert all user defined tags.
-    for i in self.txxx.keys():
-      if hasattr(track, i) and getattr(track, i):
-        self.tags['----:com.apple.iTunes:%s' % self.txxx[i]] = getattr(track, i)
+    for tag, attribute in self.txxx.iteritems():
+
+      if getattr(track, attribute, None):
+        self.tags['----:com.apple.iTunes:' + tag] = getattr(track, attribute)
 
     try:
       self.tags.save()

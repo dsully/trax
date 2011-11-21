@@ -6,10 +6,7 @@ from trax.schema import Track
 
 if __name__ == '__main__':
 
-  dirs = set()
+  paths = set(os.path.dirname(t.filename) for t in Track.query.filter(Track.musicip_puid==None))
 
-  for track in Track.query.filter(Track.puid==None):
-    dirs.add(os.path.dirname(track.filename))
-
-  for dir in sorted(dirs):
-    print "Missing PUID: %s" % dir
+  for path in sorted(paths):
+    print "Missing MusicIP PUID: %s" % path

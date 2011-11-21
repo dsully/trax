@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-  Import an Audio File (FLAC) into the metadata store.
+  Transcode audio files that have been imported into Trax.
 """
 
 import os
@@ -10,51 +10,55 @@ import sys
 import argparse
 import progressbar
 
+from trax.format import extension_for_codec
+from trax.format import load as load_format
 from trax.schema import Track
-from trax.utils import log
-
-import trax.format
+from trax.transcode import transcode, valid_codecs
+from trax.utils import log, which
 
 def main():
 
   parser = argparse.ArgumentParser()
-  parser.add_argument('--path', required=True, help='Path to your music library.')
+  parser.add_argument('--source-dir', required=True, help='Path to your music library.')
+  parser.add_argument('--dest-dir', required=True, help='Path to your music library.')
   parser.add_argument('--progress', action='store_true', default=False, help='Use the progress bar.')
-  parser.add_argument('--force', action='store_true', default=False, help='Force import of files.')
-
-  parser.add_argument('--alac', action='store_true', default=False, help='Convert & tag ALAC.')
-  parser.add_argument('--aac', action='store_true', default=False, help='Convert & tag AAC.')
-  parser.add_argument('--mp3', action='store_true', default=False, help='Convert & tag MP3.')
+  parser.add_argument('--force', action='store_true', default=False, help='Force transcode, even if the audio data is up to date.')
+  parser.add_argument('codec', choices=valid_codecs(), help='Codec to convert files to.')
 
   args = parser.parse_args()
 
+  if which('ffmpeg') is None:
+    sys.exit("Couldn't find ffmpeg! Aborting.")
+
   log.info("Processing files..")
+
+  tracks = Track.query.filter(Track.filename.like(unicode(args.source_dir + '%'))).all()
 
   if args.progress:
     widgets  = [' ', progressbar.Percentage(), ' ', progressbar.Bar(marker='*',left='[',right=']'), ' ', progressbar.ETA(), ' ']
-    progress = progressbar.ProgressBar(widgets=widgets, maxval=len(filelist))
+    progress = progressbar.ProgressBar(widgets=widgets, maxval=len(tracks))
     progress.start()
     i = 0
 
   errors = []
 
-  for track in Track.query.filter(Track.filename.like(unicode(args.path + '%'))):
+  for track in tracks:
 
-    if args.mp3:
-      filename = track.filename.replace("/flac/", "/mp3/").replace(".flac", ".mp3")
+    src_file  = track.filename
+    extension = extension_for_codec(args.codec)
+    dst_file  = src_file.replace(os.path.normpath(args.source_dir), os.path.normpath(args.dest_dir))
+    dst_file  = os.path.splitext(dst_file)[0] + '.' + extension
 
-      try:
-        trax.format.mp3.MP3(track).write_metadata(filename)
-      except Exception, e:
-        errors.append((track.filename, e))
+    if os.path.exists(dst_file) and not args.force:
+      log.debug("%s already exists. Not transcoding.", dst_file)
+    else:
+      log.info("Transcoding: %s", dst_file)
+      transcode(dst_file, args.codec, src_file)
 
-    if args.alac:
-      filename = track.filename.replace("/flac/", "/alac/").replace(".flac", ".m4a")
-
-      try:
-        trax.format.mp4.MP4(track).write_metadata(filename)
-      except Exception, e:
-        errors.append((track.filename, e))
+    try:
+      load_format(track, extension).write_metadata(dst_file)
+    except Exception, e:
+      errors.append((track.filename, e))
 
     if args.progress:
       progress.update(i)
@@ -63,7 +67,7 @@ def main():
     progress.finish()
 
   if len(errors) > 0:
-    print "The following files had errors:"
+    print "The following files had errors when adding metadata:"
 
     for error in errors:
       print error

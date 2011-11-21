@@ -11,10 +11,8 @@ import argparse
 import progressbar
 
 from trax.importer import import_track
-from trax.schema import Metadata, Track, session
+from trax.schema import Metadata, session
 from trax.utils import log
-
-import trax.format
 
 def main():
 

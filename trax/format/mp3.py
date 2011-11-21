@@ -1,5 +1,7 @@
+import hashlib
 import logging
 import os
+import struct
 
 import mutagen
 import mutagen.id3
@@ -32,6 +34,46 @@ class MP3(Base):
     'TOPE': 'original_artist',
     'TORY': 'original_year',
   }
+
+  ID3_V1_SIZE = 128
+
+  @property
+  def md5_signature(self):
+    """ Calculate the MD5 for the audio data portion of a MP3 file. """
+
+    size = os.path.getsize(self.filename)
+
+    with open(self.filename, 'rb') as fh:
+
+      # Look for the ID3v1 tag at the end of the file.
+      fh.seek(-self.ID3_V1_SIZE, 2)
+      if fh.read(3) == 'TAG':
+        size -= self.ID3_V1_SIZE
+
+      fh.seek(0)
+      start = fh.tell()
+
+      # v2 tag.
+      if fh.read(3) == 'ID3':
+        version  = fh.read(2)
+        flags    = struct.unpack("B", fh.read(1))[0]
+        footer   = flags & (1<<4)
+        bs       = struct.unpack("BBBB", fh.read(4))
+        bodysize = (bs[0]<<21) + (bs[1]<<14) + (bs[2]<<7) + bs[3]
+
+        # Seek to the end of the ID3v2 tag.
+        fh.seek(bodysize, 1)
+
+        if footer:
+          fh.seek(10, 1)
+
+        start = fh.tell()
+
+      fh.seek(start)
+
+      md5 = hashlib.new('md5')
+      md5.update(fh.read(size-start))
+      return md5.hexdigest()
 
   def extract_artwork(self):
 
@@ -111,9 +153,9 @@ class MP3(Base):
         self.set_text_frame(frame, getattr(track, prop))
 
     # Convert all user defined tags.
-    for prop, name in self.txxx.iteritems():
-      if hasattr(track, prop) and getattr(track, prop):
-        self.set_txxx_frame(name, getattr(track, prop))
+    for tag, attribute in self.txxx.iteritems():
+      if getattr(track, attribute, None):
+        self.set_txxx_frame(tag, getattr(track, attribute))
 
     if track.compilation is not None:
       if track.compilation is True:

@@ -4,23 +4,21 @@
 
 import logging
 import os
-import re
 
 import mutagen
 
-import trax.format
+from trax.format import load as load_format
+from trax.format import FORMAT_MAP
 from trax.schema import Track
 
 log = logging.getLogger(__name__)
-
-filetypes = ['flac', 'mp3', 'm4a', 'mp4']
 
 def import_track(filename, last_updated, force=False):
   """ Import a Track into the database. """
 
   filetype = os.path.splitext(filename.lower())[1].replace('.', '')
 
-  if filetype not in filetypes:
+  if filetype not in FORMAT_MAP:
     return None
 
   mtime = int(os.stat(filename).st_mtime)
@@ -56,12 +54,31 @@ def import_track(filename, last_updated, force=False):
 
   track.mtime    = mtime
   track.filetype = filetype
-  track.checksum = str(tags.info.md5_signature)
+  container      = load_format(track)
+
+  # FLAC will have a MD5 built in. Generate for other formats.
+  try:
+    track.checksum = str(tags.info.md5_signature)
+  except AttributeError:
+    try:
+      track.checksum = container.md5_signature
+    except AttributeError:
+      log.debug("%s didn't have a md5_signature & one couldn't be generated!", filename)
 
   # Map metadata values to the Track object.
-  for attribute in tags.iterkeys():
-    if hasattr(track, attribute.lower()):
-      setattr(track, attribute.lower(), tags[attribute][0])
+  for tag in tags.iterkeys():
+
+    attribute = container.attributes.get(tag, tag)
+
+    # Look for TXXX as well, when importing non-Vorbis tags.
+    if tag.startswith('TXXX:'):
+      attribute = container.txxx.get(tag.replace('TXXX:', ''), None)
+
+    try:
+      if attribute and hasattr(track, attribute.lower()):
+        setattr(track, attribute.lower(), tags[tag][0])
+    except UnicodeEncodeError as e:
+      log.warn("Couldn't set attribute on %s: [%s]", filename, e)
 
   if 'compilation' in tags:
     if tags["compilation"][0] == "true" or tags["compilation"][0] == u'1':
@@ -84,7 +101,7 @@ def import_track(filename, last_updated, force=False):
 
   # Artwork time..
   try:
-    track.cover_file = trax.format.load(track).extract_artwork()
+    track.cover_file = container.extract_artwork()
   except AttributeError:
     pass
 
