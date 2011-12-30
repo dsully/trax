@@ -76,15 +76,22 @@ def import_track(filename, last_updated, force=False):
 
     try:
       if attribute and hasattr(track, attribute.lower()):
-        setattr(track, attribute.lower(), tags[tag][0])
+        value = tags[tag][0]
+
+        # ID3 timestamps need conversion to strings.
+        if value.__class__.__name__ == 'ID3TimeStamp':
+          value = unicode(value)
+
+        setattr(track, attribute.lower(), value)
+
     except UnicodeEncodeError as e:
       log.warn("Couldn't set attribute on %s: [%s]", filename, e)
+
+  track.compilation = False
 
   if 'compilation' in tags:
     if tags["compilation"][0] == "true" or tags["compilation"][0] == u'1':
       track.compilation = True
-    else:
-      track.compilation = False
 
   if 'fingerprint' in tags:
     track.musicip_fingerprint = tags['fingerprint'][0]
