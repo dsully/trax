@@ -12,21 +12,21 @@ log = logging.getLogger(__name__)
 class MP4(Base):
 
   attributes = {
-    "\xa9nam": "title",
-    "\xa9alb": "album",
-    "\xa9ART": "artist",
-    "\xa9cmt": "comment",
-    "\xa9day": "date",
-    "\xa9gen": "genre",
-    "\xa9grp": "grouping",
-    "aART"   : "albumartist",
-    "\xa9wrt": "composer",
-    "\xa9lyr": "lyrics",
-    "soal"   : "albumsort",
-    "soar"   : "artistsort",
-    "soaa"   : "albumartistsort",
-    "soco"   : "composersort",
-    "tmpo"   : "bpm",
+    '\xa9nam': 'title',
+    '\xa9alb': 'album',
+    '\xa9ART': 'artist',
+    '\xa9cmt': 'comment',
+    '\xa9day': 'date',
+    '\xa9gen': 'genre',
+    '\xa9grp': 'grouping',
+    'aART'   : 'albumartist',
+    '\xa9wrt': 'composer',
+    '\xa9lyr': 'lyrics',
+    'soal'   : 'albumsort',
+    'soar'   : 'artistsort',
+    'soaa'   : 'albumartistsort',
+    'soco'   : 'composersort',
+    'tmpo'   : 'bpm',
   }
 
   def is_up_to_date(self):
