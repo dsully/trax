@@ -39,4 +39,8 @@ def transcode(dst_file, dst_codec, src_file, src_codec=None):
   popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   popen.communicate()
 
+  # Set the MP4 to be optimized for streaming.
+  if dst_codec in ('alac', 'aac'):
+    subprocess.check(['mp4file', '--optimize', '-q', dst_file])
+
   return popen.returncode

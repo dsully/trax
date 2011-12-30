@@ -18,10 +18,18 @@ Then to transcode & convert tags, run:
 
 * trax-transcode
 
-=================
-Optional Installs
-=================
+=====================
+Required Dependencies
+=====================
 
-'pyflac' from: https://github.com/dsully/pyflac/zipball/master
+* ffmpeg
+
+* mp4file (from the mp4v2 toolset).
+
+=====================
+Optional Dependencies
+=====================
+
+* 'pyflac' from: https://github.com/dsully/pyflac/zipball/master
 
   - requires SWIG & FLAC headers & development libraries.
