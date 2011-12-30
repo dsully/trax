@@ -1,11 +1,15 @@
+"""
+  ORM definition & engine bits for SQLAlchemy
+"""
+
+import os
+
 from sqlalchemy import Column, Integer, String, Text, Boolean, Float, SmallInteger, Unicode, UnicodeText, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, ColumnProperty
 from sqlalchemy.orm.mapper import class_mapper
 from sqlalchemy.ext.declarative import declarative_base
 
-#engine  = create_engine('sqlite:////Users/dsully/dev/audio/test.db', echo=False)
-engine  = create_engine('mysql://dsully:insecure@localhost/audio_metadata', echo=False)
-Base    = declarative_base(bind=engine)
+Base = declarative_base()
 
 class Metadata(Base):
   __tablename__     = 'metadata'
@@ -81,7 +85,16 @@ class Track(Base):
 
     return [prop.key for prop in class_mapper(self.__class__).iterate_properties if isinstance(prop, ColumnProperty)]
 
-session = scoped_session(sessionmaker(bind=engine))
+if True:
+  db_path = os.path.expanduser('~/.trax/trax.db')
 
-Base.metadata.create_all()
-Base.query = session.query_property()
+  if not os.path.exists(db_path):
+    os.makedirs(os.path.dirname(db_path))
+
+  engine  = create_engine('sqlite:///%s' % db_path, echo=False)
+
+  Base.metadata.create_all(engine)
+  #engine  = create_engine('mysql://trax:trax@localhost/trax?unix_socket=/usr/local/var/mysql/mysql.sock', echo=False)
+
+  session    = scoped_session(sessionmaker(bind=engine))
+  Base.query = session.query_property()
