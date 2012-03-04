@@ -129,8 +129,6 @@ class MP3(Base):
   def write_metadata(self, filename, force=False):
     track    = self.track
 
-    log.info(filename)
-
     if os.path.exists(filename) is False:
       log.warn("Couldn't find mp3 file!: %s", filename)
       return None

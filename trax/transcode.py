@@ -2,6 +2,7 @@
   Transcode one audio codec & format to another using ffmpeg.
 """
 
+import logging
 import os
 import shutil
 import subprocess
@@ -15,6 +16,8 @@ TRANSCODE_MAP = {
   'mp3' : 'libmp3lame',
   'copy': 'copy',
 }
+
+log = logging.getLogger(__name__)
 
 def valid_codecs():
   """ Return the list of valid codecs that can be transcoded. """

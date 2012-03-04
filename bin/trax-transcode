@@ -30,9 +30,6 @@ def main():
   if which('ffmpeg') is None:
     sys.exit("Couldn't find ffmpeg! Aborting.")
 
-  if which('mp4file') is None:
-    sys.exit("Couldn't find mp4file! Please install from http://code.google.com/p/mp4v2/.")
-
   log.info("Processing files..")
 
   tracks = Track.query.filter(Track.filename.like(unicode(args.source_dir + '%'))).all()
