@@ -89,15 +89,15 @@ class MP4(Base):
     self.tags.clear()
 
     # Basics first.
-    for tag, attribute in self.attributes.iteritems():
+    for atom, key in self.attributes.iteritems():
 
-      if hasattr(track, attribute):
-        value = getattr(track, attribute, None)
+      if hasattr(track, key):
+        value = getattr(track, key, None)
 
-        log.debug("Trying: attribute: %s (%s)", attribute, value)
+        log.debug("Trying: key: %s (%s)", key, value)
 
         if value:
-          self.tags[tag] = value
+          self.tags[atom] = value.encode('utf-8')
 
     # Hack alert.. not sure how better to "detect" this.
     if track.genre:
@@ -144,7 +144,7 @@ class MP4(Base):
 
     # Always add the check & time stamp for next time.
     if track.checksum:
-      self.tags['----:com.sully.flac2mp4:checksum'] = track.checksum
+      self.tags['----:com.sully.flac2mp4:checksum'] = str(track.checksum)
 
     self.tags['----:com.sully.flac2mp4:flacmtime'] = str(track.mtime)
 
@@ -152,9 +152,9 @@ class MP4(Base):
     for tag, attribute in self.txxx.iteritems():
 
       if getattr(track, attribute, None):
-        self.tags['----:com.apple.iTunes:' + tag] = getattr(track, attribute)
+        self.tags['----:com.apple.iTunes:' + tag] = getattr(track, attribute).encode('utf-8')
 
     try:
-      self.tags.save()
+      self.tags.save(filename)
     except Exception, e:
       log.warn("Couldn't save file %s: %s", filename, e)
