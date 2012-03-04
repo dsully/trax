@@ -5,6 +5,8 @@ class Base(object):
 
   #: User set tags to :class:`Track` attribute.
   txxx = {
+    'Acoustid Id'                      : 'acoustid_id',
+    'Acoustid Fingerprint'             : 'acoustid_fingerprint',
     'ASIN'                             : 'asin',
     'BARCODE'                          : 'barcode',
     'CATALOGNUMBER'                    : 'catalognumber',

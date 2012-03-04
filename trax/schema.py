@@ -56,6 +56,9 @@ class Track(Base):
   media                      = Column(String(16))
   catalognumber              = Column(String(64))
 
+  acoustid_id                = Column(String(64), index=True)
+  acoustid_fingerprint       = Column(Text)
+
   musicbrainz_albumid        = Column(String(64))
   musicbrainz_albumartistid  = Column(String(64))
   musicbrainz_albumstatus    = Column(String(32))
@@ -67,10 +70,10 @@ class Track(Base):
   musicip_fingerprint        = Column(Text)
   musicip_puid               = Column(String(128), index=True)
 
-  replaygain_album_gain      = Column(String(16), index=True)
-  replaygain_album_peak      = Column(Float, index=True)
-  replaygain_track_gain      = Column(String(16), index=True)
-  replaygain_track_peak      = Column(Float, index=True)
+  replaygain_album_gain      = Column(String(16))
+  replaygain_album_peak      = Column(Float)
+  replaygain_track_gain      = Column(String(16))
+  replaygain_track_peak      = Column(Float)
 
   url_discogs_release_site   = Column(String(256))
   url_lyrics_site            = Column(String(256))
