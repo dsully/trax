@@ -15,8 +15,6 @@ Required External Dependencies
 
 * [ffmpeg](http://ffmpeg.org/)
 
-* mp4file (from the [mp4v2](http://code.google.com/p/mp4v2/) toolset).
-
 Optional External Dependencies
 ------------------------------
 

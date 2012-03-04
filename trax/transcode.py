@@ -3,7 +3,11 @@
 """
 
 import os
+import shutil
 import subprocess
+
+from qtfaststart import processor
+from qtfaststart.exceptions import FastStartException
 
 TRANSCODE_MAP = {
   'alac': 'alac',
@@ -39,6 +43,17 @@ def transcode(dst_file, dst_codec, src_file, src_codec=None):
 
   # Set the MP4 to be optimized for streaming.
   if dst_codec in ('alac', 'aac'):
-    subprocess.call(['mp4file', '--optimize', '-q', dst_file])
+
+    try:
+      temp_file = dst_file + '.tmp'
+      processor.process(dst_file, temp_file, limit=0)
+
+      if os.path.exists(temp_file):
+        shutil.move(temp_file, dst_file)
+      else:
+        log.error("Couldn't mark [%s] as streaming/fast start.", dst_file)
+
+    except FastStartException:
+      log.error("Couldn't mark [%s] as streaming/fast start.", dst_file)
 
   return popen.returncode
