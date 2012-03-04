@@ -36,6 +36,7 @@ def main():
   log.info("Processing files..")
 
   tracks = Track.query.filter(Track.filename.like(unicode(args.source_dir + '%'))).all()
+  progress = None
 
   if args.progress:
     widgets  = [' ', progressbar.Percentage(), ' ', progressbar.Bar(marker='*',left='[',right=']'), ' ', progressbar.ETA(), ' ']
@@ -45,7 +46,7 @@ def main():
 
   errors = []
 
-  for track in tracks:
+  for i, track in enumerate(tracks):
 
     src_file  = track.filename
     extension = extension_for_codec(args.codec)
@@ -63,10 +64,10 @@ def main():
     except Exception, e:
       errors.append((track.filename, e))
 
-    if args.progress:
+    if progress:
       progress.update(i)
 
-  if args.progress:
+  if progress:
     progress.finish()
 
   if len(errors) > 0:

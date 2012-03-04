@@ -29,18 +29,16 @@ def transcode(dst_file, dst_codec, src_file, src_codec=None):
   # ffmpeg can do the decode & encode in one shot
   command = ['ffmpeg', '-y', '-loglevel', 'quiet', '-i', src_file, '-ac', '2', '-acodec', TRANSCODE_MAP[dst_codec], dst_file]
 
-  print "Encoding to: %s" % dst_file
+  path = os.path.dirname(dst_file)
 
-  dirname = os.path.dirname(dst_file)
-
-  if not os.path.exists(dirname):
-    os.makedirs(dirname)
+  if not os.path.exists(path):
+    os.makedirs(path)
 
   popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   popen.communicate()
 
   # Set the MP4 to be optimized for streaming.
   if dst_codec in ('alac', 'aac'):
-    subprocess.check(['mp4file', '--optimize', '-q', dst_file])
+    subprocess.call(['mp4file', '--optimize', '-q', dst_file])
 
   return popen.returncode

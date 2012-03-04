@@ -67,7 +67,7 @@ class MP4(Base):
 
   def write_metadata(self, filename, force=False):
 
-    # MP4 needs these as TXXX.
+    # MP4 needs these attributes as TXXX.
     for value in ('original album', 'original_artist', 'original_year'):
       self.txxx[value.upper().replace('_', ' ')] = value
 
@@ -115,6 +115,7 @@ class MP4(Base):
       self.tags["trkn"] = [(track.tracknumber, 0)]
 
     # Convert RG tags into iTunes SoundCheck
+    # TODO: Find what tags aacgain uses as well.
     if track.replaygain_album_gain:
       self.tags['----:com.apple.iTunes:iTunNORM'] = replay_gain_to_soundcheck(track.replaygain_album_gain, track.replaygain_album_peak)
 

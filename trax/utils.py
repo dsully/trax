@@ -10,11 +10,7 @@ log.addHandler(handler)
 log.setLevel(logging.INFO)
 
 def which(filename):
-  """
-    Find an executable's path.
-
-    :param relative_to: Also search relative to the given file.
-  """
+  """ Find an executable's path. """
 
   for entry in os.environ.get('PATH', os.defpath).split(os.pathsep):
     path = os.path.join(entry, filename)
