@@ -94,10 +94,17 @@ class MP4(Base):
       if hasattr(track, key):
         value = getattr(track, key, None)
 
-        log.debug("Trying: key: %s (%s)", key, value)
+        log.info("Trying: key: %s (%s)", key, value)
 
-        if value:
-          self.tags[atom] = value.encode('utf-8')
+        if isinstance(value, basestring):
+          value = value.encode('utf-8')
+
+        # 'tmpo' needs to be a list of integers.
+        if key == 'bpm' and value is not None:
+          value = [int(value)]
+
+        if value is not None:
+          self.tags[atom] = value
 
     # Hack alert.. not sure how better to "detect" this.
     if track.genre:

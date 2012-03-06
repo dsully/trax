@@ -21,7 +21,7 @@ def import_track(filename, last_updated, force=False):
   if filetype not in FORMAT_MAP:
     return None
 
-  mtime = int(os.stat(filename).st_mtime)
+  mtime = os.path.getmtime(filename)
 
   # Empty database (or incomplete import).
   if last_updated.value == 0:
@@ -86,6 +86,12 @@ def import_track(filename, last_updated, force=False):
 
     except UnicodeEncodeError as e:
       log.warn("Couldn't set attribute on %s: [%s]", filename, e)
+
+  # ID3 Track names need to be split.
+  if 'TRCK' in tags and '/' in tags['TRCK'][0]:
+    tracknumber, tracktotal = tags['TRCK'][0].split('/')
+    track.tracknumber = tracknumber
+    track.tracktotal  = tracktotal
 
   track.compilation = False
 
