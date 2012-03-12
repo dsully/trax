@@ -1,3 +1,3 @@
 * Convert to FLAC. Need write_metadata method, etc..
 
-* Better importing from non-FLAC/Vorbis tagged files.
+* Remove files from dest that no longer exist in source.
