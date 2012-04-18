@@ -38,8 +38,8 @@ class FLAC(Base):
       with open(cover_file, "wb") as fh:
         fh.write(picture.data)
 
-    except IOError, e:
-      print "Couldn't write to file (%s): %s" % (cover_file, e)
+    except IOError as e:
+      print("Couldn't write to file (%s): %s" % (cover_file, e))
       return None
 
     return cover_file

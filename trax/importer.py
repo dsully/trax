@@ -66,7 +66,7 @@ def import_track(filename, last_updated, force=False):
       log.debug("%s didn't have a md5_signature & one couldn't be generated!", filename)
 
   # Map metadata values to the Track object.
-  for tag in tags.iterkeys():
+  for tag in tags.keys():
 
     attribute = container.attributes.get(tag, tag)
 

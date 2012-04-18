@@ -96,7 +96,7 @@ class MP3(Base):
         with open(cover_file, "wb") as fh:
           fh.write(tags["apic"][0].data)
 
-      except IOError, e:
+      except IOError as e:
         log.warn("Couldn't write to file (%s): %s", cover_file, e)
         return None
 
@@ -146,12 +146,12 @@ class MP3(Base):
     if len(self.tags):
       self.tags.delete()
 
-    for frame, prop in self.attributes.iteritems():
+    for frame, prop in self.attributes.items():
       if getattr(track, prop):
         self.set_text_frame(frame, getattr(track, prop))
 
     # Convert all user defined tags.
-    for tag, attribute in self.txxx.iteritems():
+    for tag, attribute in self.txxx.items():
       if getattr(track, attribute, None):
         self.set_txxx_frame(tag, getattr(track, attribute))
 

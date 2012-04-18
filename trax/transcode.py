@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 def valid_codecs():
   """ Return the list of valid codecs that can be transcoded. """
 
-  return [k for k in TRANSCODE_MAP.iterkeys() if k != 'copy']
+  return [k for k in TRANSCODE_MAP.keys() if k != 'copy']
 
 def transcode(dst_file, dst_codec, src_file, src_codec=None):
   """ Transcode one audio file to another. """

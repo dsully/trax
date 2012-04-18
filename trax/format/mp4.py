@@ -59,8 +59,8 @@ class MP4(Base):
         with open(cover_file, "wb") as fh:
           fh.write(tags["covr"][0])
 
-      except IOError, e:
-        print "Couldn't write to file (%s): %s" % (cover_file, e)
+      except IOError as e:
+        print("Couldn't write to file (%s): %s" % (cover_file, e))
         return None
 
       return cover_file
@@ -89,14 +89,14 @@ class MP4(Base):
     self.tags.clear()
 
     # Basics first.
-    for atom, key in self.attributes.iteritems():
+    for atom, key in self.attributes.items():
 
       if hasattr(track, key):
         value = getattr(track, key, None)
 
-        log.info("Trying: key: %s (%s)", key, value)
+        log.debug("Trying: key: %s (%s)", key, value)
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
           value = value.encode('utf-8')
 
         # 'tmpo' needs to be a list of integers.
@@ -156,12 +156,12 @@ class MP4(Base):
     self.tags['----:com.sully.flac2mp4:flacmtime'] = str(track.mtime)
 
     # Convert all user defined tags.
-    for tag, attribute in self.txxx.iteritems():
+    for tag, attribute in self.txxx.items():
 
       if getattr(track, attribute, None):
         self.tags['----:com.apple.iTunes:' + tag] = getattr(track, attribute).encode('utf-8')
 
     try:
       self.tags.save(filename)
-    except Exception, e:
+    except Exception as e:
       log.warn("Couldn't save file %s: %s", filename, e)
