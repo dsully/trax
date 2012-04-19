@@ -53,7 +53,9 @@ def main():
     if os.path.exists(dst_file) and not args.force:
       log.debug("%s already exists. Not transcoding.", dst_file)
     else:
-      log.info("Transcoding: %s", dst_file)
+      if not args.progress:
+        log.info("Transcoding: %s", dst_file)
+
       transcode(dst_file, args.codec, src_file)
 
     try:
