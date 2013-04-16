@@ -9,9 +9,9 @@ setuptools.setup(
   name = 'trax',
   version = '0.1',
   license = 'BSD',
-  description = open('README.txt').read(),
-  author = "Dan Sully",
-  author_email = "daniel-python@electricrain.com",
+  description = 'Music DB & Transcoding Utilities',
+  author = 'Dan Sully',
+  author_email = 'daniel-python@electricrain.com',
   url = 'https://github.com/dsully/trax',
   platforms = 'any',
 
