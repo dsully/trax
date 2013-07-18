@@ -84,9 +84,26 @@ class Track(Base):
   cover_file                 = Column(Unicode(256), index=True)
 
   def attribute_names(self):
-    """ Return a list of the column properties for this object. """
+    """
+      Return a list of the column properties for this object.
+
+      :rtype: list
+    """
 
     return [prop.key for prop in class_mapper(self.__class__).iterate_properties if isinstance(prop, ColumnProperty)]
+
+  def filename_for_destination(self, source_dir, dest_dir, extension):
+    """
+      Return the destination filename for a given codec.
+
+      :rtype: str
+    """
+
+    src_file = self.filename
+    dst_file = src_file.replace(os.path.normpath(source_dir), os.path.normpath(dest_dir))
+    dst_file = os.path.splitext(dst_file)[0] + '.' + extension
+
+    return dst_file
 
 def get_db_session():
   """

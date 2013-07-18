@@ -43,6 +43,8 @@ def main():
     widgets  = [' ', progressbar.Percentage(), ' ', progressbar.Bar(marker='*',left='[',right=']'), ' ', progressbar.ETA(), ' ']
     progress = progressbar.ProgressBar(widgets=widgets, maxval=len(filelist))
     progress.start()
+  else:
+    progress = None
 
   for i, filename in enumerate(filelist):
 
@@ -51,7 +53,7 @@ def main():
     if track:
       session.add(track)
 
-    if args.progress:
+    if progress:
       progress.update(i)
 
     # Periodically commit
@@ -59,10 +61,10 @@ def main():
       log.debug("Periodic commit at %d files.", i)
       session.commit()
 
-  if args.progress:
+  if progress:
     progress.finish()
 
-  log.info("Setting last_updated value & commiting.")
+  log.info("Setting last_updated value & committing.")
 
   last_updated.value = int(time.time())
   session.add(last_updated)

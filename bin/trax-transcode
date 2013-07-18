@@ -45,10 +45,9 @@ def main():
 
   for i, track in enumerate(tracks):
 
-    src_file  = track.filename
     extension = extension_for_codec(args.codec)
-    dst_file  = src_file.replace(os.path.normpath(args.source_dir), os.path.normpath(args.dest_dir))
-    dst_file  = os.path.splitext(dst_file)[0] + '.' + extension
+    src_file  = track.filename
+    dst_file  = track.filename_for_destination(args.source_dir, args.dest_dir, extension)
 
     if os.path.exists(dst_file) and not args.force:
       log.debug("%s already exists. Not transcoding.", dst_file)
