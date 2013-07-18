@@ -1,3 +1,3 @@
 * Convert to FLAC. Need write_metadata method, etc..
 
-* Remove files from dest that no longer exist in source.
+* Rescan source tracks
