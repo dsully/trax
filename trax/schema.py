@@ -88,7 +88,11 @@ class Track(Base):
 
     return [prop.key for prop in class_mapper(self.__class__).iterate_properties if isinstance(prop, ColumnProperty)]
 
-if True:
+def get_db_session():
+  """
+    Return a SQLAlchemy session object.
+  """
+
   db_path = os.path.expanduser('~/.trax/trax.db')
 
   if not os.path.exists(os.path.dirname(db_path)):
@@ -101,3 +105,5 @@ if True:
 
   session    = scoped_session(sessionmaker(bind=engine))
   Base.query = session.query_property()
+
+  return session

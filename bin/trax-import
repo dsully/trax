@@ -11,7 +11,7 @@ import argparse
 import progressbar
 
 from trax.importer import import_track
-from trax.schema import Metadata, session
+from trax.schema import Metadata, get_db_session
 from trax.utils import log
 
 def main():
@@ -29,6 +29,7 @@ def main():
     last_updated = Metadata(name='last_updated', value=0)
 
   filelist = []
+  session  = get_db_session()
 
   log.info("Building file list..")
 

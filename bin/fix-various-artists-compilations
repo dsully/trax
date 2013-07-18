@@ -6,9 +6,11 @@
 
 import mutagen
 
-from trax.schema import Track, session
+from trax.schema import Track, get_db_session
 
 if __name__ == '__main__':
+
+  session = get_db_session()
 
   for track in Track.query.filter(Track.albumartist.in_([u'Various', u'Various Artists'])):
 
@@ -23,4 +25,6 @@ if __name__ == '__main__':
 
     print "Fixing up %s" % track.filename
 
-  session.commit()
+    session.merge(track)
+
+  session().commit()
