@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+"""
+  Remove non-existent source files from the database.
+  Remove destination files that have been removed from the database.
+"""
+
+import os
+
+import argparse
+
+from trax.format import extension_for_codec
+from trax.schema import Track, get_db_session
+from trax.transcode import valid_codecs
+
+def main():
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--source-dir', required=True, help='Path to your music library.')
+  parser.add_argument('--dest-dir', required=True, help='Path to your music library.')
+  parser.add_argument('codec', choices=valid_codecs(), help='Codec to convert files to.')
+
+  args = parser.parse_args()
+
+  session   = get_db_session()
+  dst_files = set()
+  extension = extension_for_codec(args.codec)
+
+  # First build up the list of all files in the destination path.
+  for root, _, files in os.walk(args.dest_dir, topdown=True):
+    for name in files:
+      if name.endswith(extension):
+        dst_files.add(os.path.join(root, name).decode('UTF-8'))
+
+  for track in Track.query.all():
+
+    if not os.path.exists(track.filename):
+      print "Removing: %s from the database" % track.filename
+      session.delete(track)
+      continue
+
+    # Now remove from the destination file list any file that is still valid in the database.
+    dst_file = track.filename_for_destination(args.source_dir, args.dest_dir, extension)
+
+    if dst_file in dst_files:
+      dst_files.remove(dst_file)
+
+  for filename in sorted(dst_files):
+    print "Removing: %s" % filename
+    os.unlink(filename)
+
+  session.commit()
+
+if __name__ == "__main__":
+  main()
