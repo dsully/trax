@@ -1,5 +1,5 @@
 argparse==1.2.1
-mutagen==1.20
+mutagen==1.21
 progressbar==2.3
-qtfaststart==1.5
-SQLAlchemy==0.7.2
+qtfaststart==1.7
+SQLAlchemy==0.8.2
