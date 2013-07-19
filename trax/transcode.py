@@ -34,7 +34,7 @@ def transcode(dst_file, dst_codec, src_file, src_codec=None):
     dst_codec = 'copy'
 
   # ffmpeg can do the decode & encode in one shot
-  command = ['ffmpeg', '-y', '-loglevel', 'quiet', '-i', src_file, '-ac', '2', '-acodec', TRANSCODE_MAP[dst_codec], dst_file]
+  command = ['ffmpeg', '-y', '-loglevel', 'quiet', '-i', src_file, '-map', '0:0', '-ac', '2', '-acodec', TRANSCODE_MAP[dst_codec], dst_file]
 
   path = os.path.dirname(dst_file)
 
