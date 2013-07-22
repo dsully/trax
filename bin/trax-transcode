@@ -12,7 +12,7 @@ import progressbar
 
 from trax.format import extension_for_codec
 from trax.format import load as load_format
-from trax.schema import Track
+from trax.schema import Track, get_db_session
 from trax.transcode import transcode, valid_codecs
 from trax.utils import log, which
 
@@ -22,7 +22,8 @@ def main():
   parser.add_argument('--source-dir', required=True, help='Path to your music library.')
   parser.add_argument('--dest-dir', required=True, help='Path to your music library.')
   parser.add_argument('--progress', action='store_true', default=False, help='Use the progress bar.')
-  parser.add_argument('--force', action='store_true', default=False, help='Force transcode, even if the audio data is up to date.')
+  parser.add_argument('--force-metadata', action='store_true', default=False, help='Force meta-data update.')
+  parser.add_argument('--force-transcode', action='store_true', default=False, help='Force transcode, even if the audio data is up to date.')
   parser.add_argument('codec', choices=valid_codecs(), help='Codec to convert files to.')
 
   args = parser.parse_args()
@@ -31,6 +32,8 @@ def main():
     sys.exit("Couldn't find ffmpeg! Aborting.")
 
   log.info("Processing files..")
+
+  get_db_session()
 
   tracks = Track.query.filter(Track.filename.like(unicode(args.source_dir + '%'))).all()
   progress = None
@@ -45,22 +48,26 @@ def main():
 
   for i, track in enumerate(tracks):
 
-    extension = extension_for_codec(args.codec)
-    src_file  = track.filename
-    dst_file  = track.filename_for_destination(args.source_dir, args.dest_dir, extension)
+    extension  = extension_for_codec(args.codec)
+    src_file   = track.filename
+    dst_file   = track.filename_for_destination(args.source_dir, args.dest_dir, extension)
+    transcoded = False
 
-    if os.path.exists(dst_file) and not args.force:
+    if os.path.exists(dst_file) and not args.force_transcode:
       log.debug("%s already exists. Not transcoding.", dst_file)
+
     else:
       if not args.progress:
         log.info("Transcoding: %s", dst_file)
 
       transcode(dst_file, args.codec, src_file)
+      transcoded = True
 
-    try:
-      load_format(track, extension).write_metadata(dst_file)
-    except Exception, e:
-      errors.append((track.filename, e))
+    if transcoded or args.force_metadata:
+      try:
+        load_format(track, extension).write_metadata(dst_file)
+      except Exception as e:
+        errors.append((dst_file, e))
 
     if progress:
       progress.update(i)
@@ -71,8 +78,8 @@ def main():
   if errors:
     print "The following files had errors when adding metadata:"
 
-    for error in errors:
-      print error
+    for filename, error in errors:
+      print "%s: %s" % (filename, error)
 
 if __name__ == "__main__":
   main()

@@ -16,7 +16,9 @@ if __name__ == '__main__':
 
     tags = mutagen.File(track.filename)
 
-    del tags["albumartist"]
+    if 'albumartist' in tags:
+      del tags['albumartist']
+
     tags["compilation"] = [u'1']
     tags.save()
 

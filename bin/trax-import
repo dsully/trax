@@ -67,7 +67,7 @@ def main():
   log.info("Setting last_updated value & committing.")
 
   last_updated.value = int(time.time())
-  session.add(last_updated)
+  session.merge(last_updated)
 
   session.commit()
 
