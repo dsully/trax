@@ -44,7 +44,11 @@ def import_track(filename, last_updated, force=False):
     if not force and track.id and mtime <= last_updated.value:
       return None
 
-  tags = mutagen.File(filename)
+  try:
+    tags = mutagen.File(filename)
+  except Exception as e:
+    log.error("Couldn't load: '%s' into mutagen. Skipping!", filename)
+    return None
 
   if tags is None:
     log.warn("Couldn't parse any tags for: %s", filename)
